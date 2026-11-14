@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>2048 AI - Peli</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>2048 AI</h1>
+    <div class="score-container">Pisteet: {{ score }}</div>
+
+    <div class="grid">
+        {% for row in board %}
+            {% for val in row %}
+                <div class="cell tile-{{ val if val != 0 else '' }}">
+                    {{ val if val != 0 else '' }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- Manuaaliset siirrot -->
+    <div class="controls">
+        <form action="/move/up" method="POST" style="display:inline;"><button type="submit">Ylös</button></form><br>
+        <form action="/move/left" method="POST" style="display:inline;"><button type="submit">Vasen</button></form>
+        <form action="/move/down" method="POST" style="display:inline;"><button type="submit">Alas</button></form>
+        <form action="/move/right" method="POST" style="display:inline;"><button type="submit">Oikea</button></form>
+    </div>
+
+    <!-- Tekoälyn ohjaus -->
+    <div class="ai-controls">
+        <form action="/ai-move" method="POST">
+            <button type="submit" class="ai-btn">Pydä tekoälysiirto (AI)</button>
+        </form>
+    </div>
+
+    <!-- Uusi peli -->
+    <div>
+        <form action="/restart" method="POST">
+            <button type="submit" style="background: #776e65;">Aloita alusta</button>
+        </form>
+    </div>
+
+</body>
+</html>
