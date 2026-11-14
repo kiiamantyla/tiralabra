@@ -7,4 +7,4 @@ Yksikkötesteissä on käytetty unittest-kirjastoa. Testit kattavat pelilogiikan
 ![Testikattavuus](images/coverage2.png)
 
 Testikattavuus on mitattu coverage-työkalulla.
-Testit ajettu 7.11.2026
+Testit ajettu 14.11.2026
