@@ -3,7 +3,7 @@
 import random
 from flask import Flask, render_template, redirect, url_for, session
 from ai import get_best_move
-from game import move_left, move_right, move_up, move_down
+from game import move_map
 
 app = Flask(__name__)
 app.secret_key = "2048_ai_secret_key"  # Vaaditaan session käyttöön
@@ -38,13 +38,6 @@ def make_move(direction):
     if not board:
         return redirect(url_for("index"))
 
-    move_map = {
-        "left": move_left,
-        "right": move_right,
-        "up": move_up,
-        "down": move_down
-    }
-
     if direction in move_map:
         new_board, points_earned = move_map[direction](board)
         # Jos lauta muuttui, siirto oli validi -> arvotaan uusi laatta
@@ -66,12 +59,6 @@ def ai_move():
     best_move = get_best_move(board, depth=3)
 
     if best_move:
-        move_map = {
-            "left": move_left,
-            "right": move_right,
-            "up": move_up,
-            "down": move_down
-        }
         new_board, points_earned = move_map[best_move](board)
         if new_board != board:
             spawn_tile(new_board)

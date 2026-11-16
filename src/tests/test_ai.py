@@ -6,15 +6,23 @@ from ai import evaluate_board, expectimax, get_best_move
 class TestAIHeuristic(unittest.TestCase):
     """Testiluokka heuristiikkafunktiolle"""
 
-    def test_evaluate_empty_cells(self):
-        """Testaa, että tyhjistä ruuduista saa paremmat pisteet"""
-        good_board = [
+    def setUp(self):
+        self.full_board = [
+            [2, 4, 2, 4],
+            [4, 2, 4, 2],
+            [2, 4, 2, 4],
+            [4, 2, 4, 2]
+        ]
+
+        self.board = [
             [2, 0, 0, 0],
             [0, 0, 0, 0],
             [0, 0, 0, 0],
             [0, 0, 0, 0]
         ]
 
+    def test_evaluate_empty_cells(self):
+        """Testaa, että tyhjistä ruuduista saa paremmat pisteet"""
         bad_board = [
             [2, 0, 0, 0],
             [0, 0, 0, 0],
@@ -22,7 +30,7 @@ class TestAIHeuristic(unittest.TestCase):
             [2, 2, 2, 2]
         ]
 
-        score_good = evaluate_board(good_board)
+        score_good = evaluate_board(self.board)
         score_bad = evaluate_board(bad_board)
 
         self.assertGreater(score_good, score_bad)
@@ -74,26 +82,12 @@ class TestAIHeuristic(unittest.TestCase):
 
     def test_get_best_move_no_moves(self):
         """Testaa tilannetta, jossa valideja siirtoja ei ole"""
-        full_board = [
-            [2, 4, 2, 4],
-            [4, 2, 4, 2],
-            [2, 4, 2, 4],
-            [4, 2, 4, 2]
-        ]
-
-        move = get_best_move(full_board, depth=1)
+        move = get_best_move(self.full_board, depth=1)
         self.assertIsNone(move)
 
     def test_expectimax_depth_zero(self):
         """Testaa expectimax-algoritmia syvyydellä 0"""
-        board = [
-            [2, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]
-        ]
-
-        val = expectimax(board, depth=0, is_player=True)
+        val = expectimax(self.board, depth=0, is_player=True)
         self.assertIsInstance(val, float)
 
     def test_expectimax_max_node(self):
@@ -109,37 +103,16 @@ class TestAIHeuristic(unittest.TestCase):
         self.assertIsInstance(val, float)
 
     def test_expectimax_chance_node(self):
-        """Testaa expectimax-algortimia max-solmulla"""
-        board = [
-            [2, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]
-        ]
-
-        val = expectimax(board, depth=1, is_player=False)
+        """Testaa expectimax-algortimia chance-solmulla"""
+        val = expectimax(self.board, depth=1, is_player=False)
         self.assertIsInstance(val, float)
 
     def test_expectimax_no_valid_moves_with_max_node(self):
         """Testaa expectimax-algoritmia max-solmulla kun ei ole valideja siirtoja"""
-        full_board = [
-            [2, 4, 2, 4],
-            [4, 2, 4, 2],
-            [2, 4, 2, 4],
-            [4, 2, 4, 2]
-        ]
-
-        val = expectimax(full_board, depth=1, is_player=True)
+        val = expectimax(self.full_board, depth=1, is_player=True)
         self.assertIsInstance(val, float)
 
     def test_expectimax_chance_node_no_empty_cells(self):
         """Testaa expectimax-algoritmia chance-solmulla kun ei ole valideja siirtoja"""
-        full_board = [
-            [2, 4, 2, 4],
-            [4, 2, 4, 2],
-            [2, 4, 2, 4],
-            [4, 2, 4, 2]
-        ]
-
-        val = expectimax(full_board, depth=1, is_player=False)
+        val = expectimax(self.full_board, depth=1, is_player=False)
         self.assertIsInstance(val, float)

@@ -110,3 +110,10 @@ def move_down(board: list[list[int]]) -> tuple[list[list[int]], int]:
     new_transposed_board, total_score = move_right(transposed_board)
     new_board = transpose_board(new_transposed_board)
     return new_board, total_score
+
+move_map = {
+    "left": move_left,
+    "right": move_right,
+    "up": move_up,
+    "down": move_down
+}

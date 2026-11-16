@@ -1,6 +1,6 @@
 """2048-pelin tekoälyn heuristiikka ja expectimax-algoritmi"""
 
-from game import move_left, move_right, move_up, move_down
+from game import move_map
 
 weight_matrix = [
     [65536, 32768, 16384, 8192],
@@ -47,7 +47,7 @@ def expectimax(board: list[list[int]], depth: int, is_player: bool) -> float:
 
     Args:
         board: 4x4-lista pelilaudan tilasta
-        depth: hakupuun jäljellä oleva syvyys
+        depth: hakupuun syvyys
         is_player: True, jos max-solmu ja False jos chance-solmu
 
     Returns:
@@ -56,55 +56,70 @@ def expectimax(board: list[list[int]], depth: int, is_player: bool) -> float:
     if depth == 0:
         return evaluate_board(board)
 
-    move_map = {
-        "left": move_left,
-        "right": move_right,
-        "up": move_up,
-        "down": move_down
-    }
-
-    #Max-solmu
     if is_player:
-        max_val = float("-inf")
-        valid_move_found = False
+        return evaluate_player_node(board, depth)
 
-        for move_func in move_map.values():
-            new_board, _ = move_func(board)
-            if new_board != board:  #Siirto muutti lautaa eli oli validi
-                valid_move_found = True
-                val = expectimax(new_board, depth - 1, is_player=False)
-                if val > max_val:
-                    max_val = val
+    return evaluate_chance_node(board, depth)
 
-        if not valid_move_found:
-            return evaluate_board(board)
 
-        return max_val
+def evaluate_player_node(board: list[list[int]], depth: int) -> float:
+    """
 
-    #Chance-solmu
-    else:
-        empty_cells = [(r, c) for r in range(4) for c in range(4) if board[r][c] == 0]
-        if not empty_cells:
-            return evaluate_board(board)
+    Args:
+        board: 4x4-lista pelilaudan tilasta
+        depth: hakupuun syvyys
 
-        total_score = 0.0
+    Returns:
+        float: arvio pelilaudan tilan hyvyydestä
+    """
+    max_val = float("-inf")
+    valid_move_found = False
 
-        #Lasketaan odotusarvo kaikille mahdollisille uusille laatoille
-        for r, c in empty_cells:
-            #Laatta 2, 0.9 todennäköisyys
-            board_with_2 = [row[:] for row in board]
-            board_with_2[r][c] = 2
-            score_2 = expectimax(board_with_2, depth - 1, is_player=True)
+    for move_func in move_map.values():
+        new_board, _ = move_func(board)
+        if new_board != board:  #Siirto muutti lautaa eli oli validi
+            valid_move_found = True
+            val = expectimax(new_board, depth - 1, is_player=False)
+            max_val = max(max_val, val)
 
-            #Laatta 4, 0.1 todennäköisyys
-            board_with_4 = [row[:] for row in board]
-            board_with_4[r][c] = 4
-            score_4 = expectimax(board_with_4, depth - 1, is_player=True)
+    if not valid_move_found:
+        return evaluate_board(board)
 
-            #Painotettu keskiarvo laatalle
-            total_score += 0.9 * score_2 + 0.1 * score_4
+    return max_val
 
-        return total_score / len(empty_cells)
+def evaluate_chance_node(board: list[list[int]], depth: int) -> float:
+    """
+
+    Args:
+        board: 4x4-lista pelilaudan tilasta
+        depth: hakupuun syvyys
+
+    Returns:
+        float: arvio pelilaudan tilan hyvyydestä
+    """
+    empty_cells = [(r, c) for r in range(4) for c in range(4) if board[r][c] == 0]
+    if not empty_cells:
+        return evaluate_board(board)
+
+    total_score = 0.0
+
+    #Lasketaan odotusarvo kaikille mahdollisille uusille laatoille
+    for r, c in empty_cells:
+        #Laatta 2, 0.9 todennäköisyys
+        board_with_2 = [row[:] for row in board]
+        board_with_2[r][c] = 2
+        score_2 = expectimax(board_with_2, depth - 1, is_player=True)
+
+        #Laatta 4, 0.1 todennäköisyys
+        board_with_4 = [row[:] for row in board]
+        board_with_4[r][c] = 4
+        score_4 = expectimax(board_with_4, depth - 1, is_player=True)
+
+        #Painotettu keskiarvo laatalle
+        total_score += 0.9 * score_2 + 0.1 * score_4
+
+    return total_score / len(empty_cells)
+
 
 def get_best_move(board: list[list[int]], depth: int = 3) -> str | None:
     """Palauttaa parhaan siirron
@@ -118,13 +133,6 @@ def get_best_move(board: list[list[int]], depth: int = 3) -> str | None:
     """
     best_val = float("-inf")
     best_move = None
-
-    move_map = {
-            "left": move_left,
-            "right": move_right,
-            "up": move_up,
-            "down": move_down
-    }
 
     for name, move_func in move_map.items():
         new_board, _ = move_func(board)
