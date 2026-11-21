@@ -20,6 +20,6 @@ Käyttöliittymän testaus on toteutettu manuaalisesti valmiita testitapauksia h
 - AI-siirto: Paina 'Pyydä tekoälysiirto (AI)'-nappia eri kohdissa peliä (kun laudalla on eri määrä tyhjiä ruutuja). Tekoälyn pitäisi tehdä järkevä siirto ja vasteajan pitäisi tuntua sopivalta. Myös loppupelissä, kun lauta on täydempi niin järkevä siirto pitäisi syntyä edelleen suhteellisen sulavasti. Peli ei saa jäädä etenkään myöhemmässä vaiheessa (kun hakusvyys on isompi) jumiin tai aiheuttaa virheitä.
 
 2. Game over ja uudelleen käynnistys
-- Vie peli tilanteeseen, jossa pelilauta on täynnä eikä siirroilla voi enää muuttaa lautaa. Pisteiden alapuolelle pitäisi ilmestyä Game over -banneri ja siirtonappien pitäisi olla poissa käytöstä. 'Aloita alusta'-nappi on ainoa aktiivinen nappi.
+- Game over: Vie peli tilanteeseen, jossa pelilauta on täynnä eikä siirroilla voi enää muuttaa lautaa. Pisteiden alapuolelle pitäisi ilmestyä Game over -banneri ja siirtonappien pitäisi olla poissa käytöstä. 'Aloita alusta'-nappi on ainoa aktiivinen nappi.
 - Uudelleen käynnistys: Paina 'Aloita alusta'-nappia. Game over -bannerin pitäisi kadota, pisteiden ja pelilaudan nollautua(/palata aloitustilaan). Kaikkien siirtonappien pitäisi olla käytettävissä.
 - Sivun päivitys: Päivitä sivu kesken pelin. Pelin pitäisi säilyä ennallaan eli pelilautaan, pisteisiin tai muuhunkaan ei tule muutoksia.
