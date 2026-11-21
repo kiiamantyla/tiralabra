@@ -42,6 +42,23 @@ def evaluate_board(board: list[list[int]]) -> float:
     score += empty_cells * 100.0
     return score
 
+def get_dynamic_depth(board: list[list[int]], base_depth: int) -> int:
+    """Kasvattaa hakusyvyyttä tyhjien ruutujen vähentyessä.
+
+    Args:
+        board: 4x4-lista pelilaudan tilasta
+        base_depth: käyttäjän määrittämä aloitussyvyys
+
+    Returns:
+        int: laskennassa käytettävä hakusyvyys
+    """
+    empty_cells = count_empty_cells(board)
+    if empty_cells <= 3:
+        return base_depth + 2
+    if empty_cells <= 7:
+        return base_depth + 1
+    return base_depth
+
 def expectimax(board: list[list[int]], depth: int, is_player: bool) -> float:
     """Expectimax-algoritmi pelitilan arvioimiseen syvyydellä d.
 
@@ -53,7 +70,7 @@ def expectimax(board: list[list[int]], depth: int, is_player: bool) -> float:
     Returns:
         float: arvio pelilaudan tilan hyvyydestä
     """
-    if depth == 0:
+    if depth <= 0:
         return evaluate_board(board)
 
     if is_player:
@@ -63,14 +80,14 @@ def expectimax(board: list[list[int]], depth: int, is_player: bool) -> float:
 
 
 def evaluate_player_node(board: list[list[int]], depth: int) -> float:
-    """
+    """Arvioi pelaajan (max) solmun.
 
     Args:
         board: 4x4-lista pelilaudan tilasta
         depth: hakupuun syvyys
 
     Returns:
-        float: arvio pelilaudan tilan hyvyydestä
+        float: paras arvo mahdollisten siirtojen jälkeen
     """
     max_val = float("-inf")
     valid_move_found = False
@@ -88,14 +105,14 @@ def evaluate_player_node(board: list[list[int]], depth: int) -> float:
     return max_val
 
 def evaluate_chance_node(board: list[list[int]], depth: int) -> float:
-    """
+    """Arvioi satunnaistapahtuman (chance) odotusarvon
 
     Args:
         board: 4x4-lista pelilaudan tilasta
         depth: hakupuun syvyys
 
     Returns:
-        float: arvio pelilaudan tilan hyvyydestä
+        float: odotettu arvo uusien laattojen jälkeen
     """
     empty_cells = [(r, c) for r in range(4) for c in range(4) if board[r][c] == 0]
     if not empty_cells:
@@ -126,18 +143,19 @@ def get_best_move(board: list[list[int]], depth: int = 3) -> str | None:
 
     Args:
         board: 4x4-lista pelilaudan tilasta
-        depth: hakupuun syvyys
+        depth: käyttäjän antama aloitussyvyys
 
     Returns:
         str | None: paras siirto nimeltä tai None, jos ei ole siirtoa
     """
+    effective_depth = get_dynamic_depth(board, depth)
     best_val = float("-inf")
     best_move = None
 
     for name, move_func in move_map.items():
         new_board, _ = move_func(board)
         if new_board != board:
-            val = expectimax(new_board, depth - 1, is_player=False)
+            val = expectimax(new_board, effective_depth - 1, is_player=False)
             if val > best_val:
                 best_val = val
                 best_move = name

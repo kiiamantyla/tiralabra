@@ -1,10 +1,10 @@
-"""Yksikkötestit tekoälyn heuristiikalle"""
+"""Yksikkötestit tekoälyn heuristiikalle ja expectimax-algoritmille"""
 
 import unittest
-from ai import evaluate_board, expectimax, get_best_move
+from ai import count_empty_cells, evaluate_board, expectimax, get_best_move, get_dynamic_depth
 
 class TestAIHeuristic(unittest.TestCase):
-    """Testiluokka heuristiikkafunktiolle"""
+    """Testiluokka heuristiikkafunktiolle ja expectimax-algortimille"""
 
     def setUp(self):
         self.full_board = [
@@ -20,6 +20,11 @@ class TestAIHeuristic(unittest.TestCase):
             [0, 0, 0, 0],
             [0, 0, 0, 0]
         ]
+
+    def test_count_empty_cells(self):
+        """Testaa tyhjien ruutujen laskemisen"""
+        self.assertEqual(count_empty_cells(self.board), 15)
+        self.assertEqual(count_empty_cells(self.full_board), 0)
 
     def test_evaluate_empty_cells(self):
         """Testaa, että tyhjistä ruuduista saa paremmat pisteet"""
@@ -55,6 +60,26 @@ class TestAIHeuristic(unittest.TestCase):
         score_bad = evaluate_board(bad_board)
 
         self.assertGreater(score_good, score_bad)
+
+    def test_dynamic_depth(self):
+        """Testaa hakusyvyyden muuttumisen"""
+        self.assertEqual(get_dynamic_depth(self.board, 3), 3)
+
+        five_empty_board = [
+            [2, 4, 2, 4],
+            [4, 0, 4, 2],
+            [0, 4, 0, 4],
+            [4, 0, 4, 0]
+        ]
+        self.assertEqual(get_dynamic_depth(five_empty_board, 3), 4)
+
+        two_empty_board = [
+            [2, 0, 2, 4],
+            [4, 2, 4, 2],
+            [2, 4, 2, 4],
+            [4, 2, 0, 2]
+        ]
+        self.assertEqual(get_dynamic_depth(two_empty_board, 3), 5)
 
     def test_get_best_move_returns_valid_move(self):
         """Testaa, että palautuu sallittu suunta tai None"""
