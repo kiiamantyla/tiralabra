@@ -10,6 +10,10 @@
     <h1>2048 AI</h1>
     <div class="score-container">Pisteet: {{ score }}</div>
 
+    {% if game_over %}
+        <div class="game-over-banner">Game Over! Ei enää siirtoja jäljellä.</div>
+    {% endif %}
+
     <div class="grid">
         {% for row in board %}
             {% for val in row %}
@@ -22,16 +26,26 @@
 
     <!-- Manuaaliset siirrot -->
     <div class="controls">
-        <form action="/move/up" method="POST" style="display:inline;"><button type="submit">Ylös</button></form><br>
-        <form action="/move/left" method="POST" style="display:inline;"><button type="submit">Vasen</button></form>
-        <form action="/move/down" method="POST" style="display:inline;"><button type="submit">Alas</button></form>
-        <form action="/move/right" method="POST" style="display:inline;"><button type="submit">Oikea</button></form>
+        <form action="/move/up" method="POST" style="display:inline;">
+            <button type="submit" {% if game_over %}disabled{% endif %}>Ylös</button>
+        </form><br>
+        <form action="/move/left" method="POST" style="display:inline;">
+            <button type="submit" {% if game_over %}disabled{% endif %}>Vasen</button>
+        </form>
+        <form action="/move/down" method="POST" style="display:inline;">
+            <button type="submit" {% if game_over %}disabled{% endif %}>Alas</button>
+        </form>
+        <form action="/move/right" method="POST" style="display:inline;">
+            <button type="submit" {% if game_over %}disabled{% endif %}>Oikea</button>
+        </form>
     </div>
 
     <!-- Tekoälyn ohjaus -->
     <div class="ai-controls">
         <form action="/ai-move" method="POST">
-            <button type="submit" class="ai-btn">Pydä tekoälysiirto (AI)</button>
+            <button type="submit" class="ai-btn" {% if game_over %}disabled{% endif %}>
+                Pyydä tekoälysiirto (AI)
+            </button>
         </form>
     </div>
 

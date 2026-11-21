@@ -8,12 +8,14 @@ from game import move_map
 app = Flask(__name__)
 app.secret_key = "2048_ai_secret_key"  # Vaaditaan session käyttöön
 
+
 def init_board():
-    """Luo uuden 4x4-pelilaudan"""
+    """Luo uuden 4x4-pelilaudan."""
     board = [[0, 0, 0, 0] for _ in range(4)]
     spawn_tile(board)
     spawn_tile(board)
     return board
+
 
 def spawn_tile(board):
     """Arpoo uuden laatan (2 tai 4) tyhjään ruutuun."""
@@ -22,6 +24,30 @@ def spawn_tile(board):
         r, c = random.choice(empty_cells)
         board[r][c] = 2 if random.random() < 0.9 else 4
 
+
+def has_valid_moves(board):
+    """Tarkistaa, onko pelilaudalla vähintään yksi validi siirto."""
+    for move_func in move_map.values():
+        new_board, _ = move_func(board)
+        if new_board != board:
+            return True
+    return False
+
+
+def apply_move(board, direction):
+    """Kokeilee siirtoa ja arpoo uuden laatan, jos lauta muuttui."""
+    if direction not in move_map:
+        return False
+
+    new_board, points_earned = move_map[direction](board)
+    if new_board != board:
+        spawn_tile(new_board)
+        session["board"] = new_board
+        session["score"] = session.get("score", 0) + points_earned
+        return True
+    return False
+
+
 @app.route("/")
 def index():
     """Näyttää pelilaudan etusivulla."""
@@ -29,24 +55,27 @@ def index():
         session["board"] = init_board()
         session["score"] = 0
 
-    return render_template("index.html", board=session["board"], score=session["score"])
+    board = session["board"]
+    game_over = not has_valid_moves(board)
+
+    return render_template(
+        "index.html",
+        board=board,
+        score=session["score"],
+        game_over=game_over,
+    )
+
 
 @app.route("/move/<direction>", methods=["POST"])
 def make_move(direction):
-    """Käsittelee pelaajan tai tekoälyn tekemän siirron."""
+    """Käsittelee pelaajan tekemän siirron."""
     board = session.get("board")
     if not board:
         return redirect(url_for("index"))
 
-    if direction in move_map:
-        new_board, points_earned = move_map[direction](board)
-        # Jos lauta muuttui, siirto oli validi -> arvotaan uusi laatta
-        if new_board != board:
-            spawn_tile(new_board)
-            session["board"] = new_board
-            session["score"] = session.get("score", 0) + points_earned
-
+    apply_move(board, direction)
     return redirect(url_for("index"))
+
 
 @app.route("/ai-move", methods=["POST"])
 def ai_move():
@@ -55,17 +84,12 @@ def ai_move():
     if not board:
         return redirect(url_for("index"))
 
-    # Haetaan paras siirto tekoälyltä (syvyyttä voi säätää, esim. 3)
     best_move = get_best_move(board, depth=3)
-
     if best_move:
-        new_board, points_earned = move_map[best_move](board)
-        if new_board != board:
-            spawn_tile(new_board)
-            session["board"] = new_board
-            session["score"] = session.get("score", 0) + points_earned
+        apply_move(board, best_move)
 
     return redirect(url_for("index"))
+
 
 @app.route("/restart", methods=["POST"])
 def restart():
@@ -73,6 +97,7 @@ def restart():
     session["board"] = init_board()
     session["score"] = 0
     return redirect(url_for("index"))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
